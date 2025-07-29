@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Desk - ITIL Learning Game</title>
+    <link rel="stylesheet" href="style.css" />
+
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🎯 Service Desk</h1>
+            <p>Master ITIL through strategic ticket management</p>
+        </div>
+
+        <div id="setup" class="setup-screen">
+            <h2>Game Setup</h2>
+            <div class="setup-form">
+                <div class="form-group">
+                    <label>Number of Players:</label>
+                    <select id="playerCount">
+                        <option value="1">1 Player</option>
+                        <option value="2">2 Players</option>
+                        <option value="3">3 Players</option>
+                        <option value="4">4 Players</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Difficulty:</label>
+                    <select id="difficulty">
+                        <option value="easy">Easy (12 rounds)</option>
+                        <option value="normal">Normal (10 rounds)</option>
+                        <option value="hard">Hard (8 rounds)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Escalation Rate:</label>
+                    <select id="escalation">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="startGame()">Start Service Desk</button>
+            </div>
+        </div>
+
+        <div id="gameArea" class="game-area">
+            <div class="sidebar">
+                <div class="game-status">
+                    <h3>Game Status</h3>
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <div class="status-value" id="currentRound">1</div>
+                            <div class="status-label">Round</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-value" id="totalRounds">10</div>
+                            <div class="status-label">Total</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-value" id="activeTickets">0</div>
+                            <div class="status-label">Active</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-value" id="resolvedTickets">0</div>
+                            <div class="status-label">Resolved</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="deck-info">
+                    <h3>Ticket Queue</h3>
+                    <div class="deck-count">
+                        <div class="status-value" id="deckCount">52</div>
+                        <div class="status-label">Tickets Remaining</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <h3>ITIL Knowledge</h3>
+                    <div style="font-size: 0.9em; line-height: 1.4; opacity: 0.9; margin-top: 10px;">
+                        <p><strong>Incidents:</strong> Urgent issues disrupting services</p>
+                        <p><strong>Requests:</strong> Standard service requests</p>
+                        <p><strong>Changes:</strong> Complex modifications requiring planning</p>
+                        <p style="margin-top: 15px;"><strong>Strategy:</strong> Balance immediate resolution with expertise investment for long-term efficiency!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-area">
+                <div class="turn-info">
+                    <span id="currentPlayerName">Player 1</span>'s Turn - Choose your action wisely!
+                </div>
+                <div id="playersContainer"></div>
+            </div>
+
+            <div class="sidebar">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <button class="btn" onclick="endTurn()" id="endTurnBtn" disabled>End Turn</button>
+                </div>
+
+                <div>
+                    <h3>Turn Actions</h3>
+                    <div style="margin-top: 15px; font-size: 0.9em; line-height: 1.4;">
+                        <p><strong>1.</strong> Select tickets to resolve OR expertise to train</p>
+                        <p><strong>2.</strong> Click End Turn</p>
+                        <p style="margin-top: 15px; color: #f7b801;"><strong>Warning:</strong> Unresolved tickets increase stress!</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <h3>Scoring</h3>
+                    <div style="font-size: 0.9em; line-height: 1.4; opacity: 0.9;">
+                        <p>• Resolve tickets: +Points</p>
+                        <p>• Expertise training: Future efficiency</p>
+                        <p>• Stress > 100: Game Over</p>
+                        <p>• Survive all rounds: Victory!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="gameOverModal" class="modal">
+        <div class="modal-content">
+            <h2 id="gameOverTitle">Game Over</h2>
+            <p id="gameOverMessage"></p>
+            <div id="finalScores" style="margin: 20px 0;"></div>
+            <button class="btn" onclick="location.reload()">Play Again</button>
+        </div>
+    </div>
+
+    <script src="sd.js"></script>
+</body>
+</html>
