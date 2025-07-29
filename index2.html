@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Desk - ITIL Learning Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .game-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .setup-screen {
+            background: rgba(255,255,255,0.1);
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .setup-screen h2 {
+            margin-bottom: 30px;
+            font-size: 1.8em;
+        }
+
+        .setup-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .form-group label {
+            flex: 1;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .game-area {
+            display: none;
+            grid-template-columns: 400px 1fr 300px;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+
+        .sidebar {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .main-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .player-area {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 3px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        .player-area.active {
+            border-color: #4ecdc4;
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .player-name {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .stress-meter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stress-bar {
+            width: 120px;
+            height: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .stress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ecdc4, #f7b801, #e74c3c);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        .tickets-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .ticket {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .ticket:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .ticket.selected {
+            border-color: #4ecdc4;
+        }
+
+        .ticket.incident {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .ticket.change {
+            background: linear-gradient(135deg, #f39c12, #d68910);
+        }
+
+        .ticket.request {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .ticket-type {
+            font-size: 0.8em;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .ticket-title {
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .ticket-service {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .ticket-time {
+            font-size: 0.8em;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .expertise-area {
+            margin-top: 15px;
+        }
+
+        .expertise-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .expertise-item {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .expertise-item.selected {
+        background: rgba(255,0,255,0.1);
+        }
+
+        .expertise-item:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .expertise-level {
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+
+        .actions-area {
+            margin-top: 15px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: rgba(78, 205, 196, 0.2);
+            border: 2px solid #4ecdc4;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .action-btn:hover {
+            background: rgba(78, 205, 196, 0.4);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .game-status {
+            margin-bottom: 20px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .status-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .status-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+
+        .status-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .turn-info {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+
+        .deck-info {
+            margin-top: 20px;
+        }
+
+        .deck-count {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 500px;
+            border: 2px solid #4ecdc4;
+        }
+
+        @media (max-width: 1200px) {
+            .game-area {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🎯 Service Desk</h1>
+            <p>Master ITIL through strategic ticket management</p>
+        </div>
+
+        <div id="setup" class="setup-screen">
+            <h2>Game Setup</h2>
+            <div class="setup-form">
+                <div class="form-group">
+                    <label>Number of Players:</label>
+                    <select id="playerCount">
+                        <option value="1">1 Player</option>
+                        <option value="2">2 Players</option>
+                        <option value="3">3 Players</option>
+                        <option value="4">4 Players</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Difficulty:</label>
+                    <select id="difficulty">
+                        <option value="easy">Easy (12 rounds)</option>
+                        <option value="normal">Normal (10 rounds)</option>
+                        <option value="hard">Hard (8 rounds)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Escalation Rate:</label>
+                    <select id="escalation">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="startGame()">Start Service Desk</button>
+            </div>
+        </div>
+
+        <div id="gameArea" class="game-area">
+            <div class="sidebar">
+                <div class="game-status">
+                    <h3>Game Status</h3>
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <div class="status-value" id="currentRound">1</div>
+                            <div class="status-label">Round</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-value" id="totalRounds">10</div>
+                            <div class="status-label">Total</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-value" id="activeTickets">0</div>
+                            <div class="status-label">Active</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-value" id="resolvedTickets">0</div>
+                            <div class="status-label">Resolved</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="deck-info">
+                    <h3>Ticket Queue</h3>
+                    <div class="deck-count">
+                        <div class="status-value" id="deckCount">52</div>
+                        <div class="status-label">Tickets Remaining</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <h3>ITIL Knowledge</h3>
+                    <div style="font-size: 0.9em; line-height: 1.4; opacity: 0.9; margin-top: 10px;">
+                        <p><strong>Incidents:</strong> Urgent issues disrupting services</p>
+                        <p><strong>Requests:</strong> Standard service requests</p>
+                        <p><strong>Changes:</strong> Complex modifications requiring planning</p>
+                        <p style="margin-top: 15px;"><strong>Strategy:</strong> Balance immediate resolution with expertise investment for long-term efficiency!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-area">
+                <div class="turn-info">
+                    <span id="currentPlayerName">Player 1</span>'s Turn - Choose your action wisely!
+                </div>
+                <div id="playersContainer"></div>
+            </div>
+
+            <div class="sidebar">
+                <div style="text-align: center; margin-bottom: 20px;">
+                  <button class="btn" onclick="endTurn()" id="endTurnBtn" disabled>End Turn</button>
+                  <div id="max-ap"></div>
+                </div>
+
+                <div>
+                    <h3>Turn Actions</h3>
+                    <div style="margin-top: 15px; font-size: 0.9em; line-height: 1.4;">
+                        <p><strong>1.</strong> Select tickets to resolve OR expertise to train</p>
+                        <p><strong>2.</strong> Click End Turn</p>
+                        <p style="margin-top: 15px; color: #f7b801;"><strong>Warning:</strong> Unresolved tickets increase stress!</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <h3>Scoring</h3>
+                    <div style="font-size: 0.9em; line-height: 1.4; opacity: 0.9;">
+                        <p>• Resolve tickets: +Points</p>
+                        <p>• Expertise training: Future efficiency</p>
+                        <p>• Stress > 100: Game Over</p>
+                        <p>• Survive all rounds: Victory!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="gameOverModal" class="modal">
+        <div class="modal-content">
+            <h2 id="gameOverTitle">Game Over</h2>
+            <p id="gameOverMessage"></p>
+            <div id="finalScores" style="margin: 20px 0;"></div>
+            <button class="btn" onclick="location.reload()">Play Again</button>
+        </div>
+    </div>
+
+    <script src="sd2.js">    </script>
+</body>
+</html>
