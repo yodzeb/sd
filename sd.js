@@ -266,7 +266,7 @@ function endTurn() {
         ticket.turnsActive++;
         if (ticket.turnsActive > 1) {
             const stressIncrease = ticket.type === 'incident' ? 3 : ticket.type === 'change' ? 2 : 1;
-            player.stress += stressIncrease * gameState.escalationRate;
+            player.stress += stressIncrease * gameState.escalationRate / 1.5;
         }
     });
     
